@@ -1,0 +1,21 @@
+# General
+.DS_Store
+.vscode/
+.idea/
+*.log
+
+# OS generated files
+Thumbs.db
+
+# Secrets
+*.p12
+*.jks
+*.key
+*.pem
+secrets.env
+.env
+
+# Build artifacts (in case they are at root)
+build/
+dist/
+target/

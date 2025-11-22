@@ -1,0 +1,19 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import fs from 'fs'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: '0.0.0.0',
+    port: 5174,
+    strictPort: false,
+    cors: false,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      clientPort: 443
+    }
+  }
+})
