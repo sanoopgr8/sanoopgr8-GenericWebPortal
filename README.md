@@ -12,14 +12,14 @@ A modern web application with React frontend and Spring Boot backend, featuring 
 
 ### Backend Setup
 ```bash
-cd backend
+cd web-portal/backend
 ./mvnw clean install
 ./mvnw spring-boot:run
 ```
 
 ### Frontend Setup
 ```bash
-cd frontend
+cd web-portal/frontend
 npm install
 npm run dev
 ```
@@ -27,24 +27,24 @@ npm run dev
 ### Database Setup
 
 #### Automated Setup (Windows)
-Double-click `setup.bat` in the root directory, or run:
+Double-click `web-portal/setup.bat` in the root directory, or run:
 ```cmd
-setup.bat
+web-portal\setup.bat
 ```
 
 
 #### Manual Setup
 1. Install PostgreSQL 12+
 2. Create PostgreSQL database: `webportal`
-3. Update credentials in `backend/src/main/resources/application.properties` if you changed the default password
+3. Update credentials in `web-portal/backend/src/main/resources/application.properties` if you changed the default password
 4. Liquibase will automatically create tables on first run
 
 ## 📚 Documentation
 
-- **[Architecture](docs/architecture/)** - System architecture and design
-- **[Setup Guides](docs/setup/)** - Installation and configuration
-- **[Features](docs/features/)** - Feature documentation
-- **[Cleanup Summary](docs/CLEANUP_SUMMARY.md)** - Project cleanup history
+- **[Architecture](web-portal/docs/architecture/)** - System architecture and design
+- **[Setup Guides](web-portal/docs/setup/)** - Installation and configuration
+- **[Features](web-portal/docs/features/)** - Feature documentation
+- **[Cleanup Summary](web-portal/docs/CLEANUP_SUMMARY.md)** - Project cleanup history
 
 ## 🏗️ Tech Stack
 
@@ -122,31 +122,31 @@ web-portal/
 ### Running Tests
 ```bash
 # Backend
-cd backend
+cd web-portal/backend
 ./mvnw test
 
 # Frontend
-cd frontend
+cd web-portal/frontend
 npm test
 ```
 
 ### Building for Production
 ```bash
 # Backend
-cd backend
+cd web-portal/backend
 ./mvnw clean package
 
 # Frontend
-cd frontend
+cd web-portal/frontend
 npm run build
 ```
 
 ## 📝 Configuration
 
 Key configuration files:
-- `backend/src/main/resources/application.properties` - Backend configuration
-- `frontend/vite.config.js` - Frontend build configuration
-- `backend/src/main/resources/db/changelog/` - Database migrations
+- `web-portal/backend/src/main/resources/application.properties` - Backend configuration
+- `web-portal/frontend/vite.config.js` - Frontend build configuration
+- `web-portal/backend/src/main/resources/db/changelog/` - Database migrations
 
 ## 🤝 Contributing
 
@@ -165,6 +165,6 @@ This project is licensed under the MIT License.
 
 ## 🔗 Related Documentation
 
-- [Liquibase Guide](docs/setup/LIQUIBASE_GUIDE.md)
-- [Signup Implementation](docs/features/SIGNUP_IMPLEMENTATION.md)
-- [Architecture Diagram](docs/architecture/architecture.md)
+- [Liquibase Guide](web-portal/docs/setup/LIQUIBASE_GUIDE.md)
+- [Signup Implementation](web-portal/docs/features/SIGNUP_IMPLEMENTATION.md)
+- [Architecture Diagram](web-portal/docs/architecture/architecture.md)
