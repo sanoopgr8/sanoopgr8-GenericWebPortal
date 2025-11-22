@@ -2,15 +2,15 @@
 
 ```mermaid
 graph TD
-    subgraph Client [Client Side]
+    subgraph Client ["Client Side"]
         Browser[Web Browser]
     end
 
-    subgraph Infrastructure [Infrastructure]
+    subgraph Infrastructure ["Infrastructure"]
         Nginx[Nginx Reverse Proxy]
     end
 
-    subgraph Frontend [Frontend (React + Vite)]
+    subgraph Frontend ["Frontend (React + Vite)"]
         UI[User Interface]
         Router[React Router]
         LoginComp[Login Component]
@@ -23,7 +23,7 @@ graph TD
         Router --> SignupComp
     end
 
-    subgraph Backend [Backend (Spring Boot)]
+    subgraph Backend ["Backend (Spring Boot)"]
         Controller[REST Controllers]
         AuthCtrl[AuthController]
         HelloCtrl[HelloController]
@@ -44,12 +44,12 @@ graph TD
         Service --> EmailSvc
     end
 
-    subgraph External [External Services]
+    subgraph External ["External Services"]
         SMTP[SMTP Server (Gmail)]
         EmailSvc -- "SMTP (TLS)" --> SMTP
     end
 
-    subgraph Database [Data Storage]
+    subgraph Database ["Data Storage"]
         PostgreSQL[(PostgreSQL Database)]
         
         Repo -- "JDBC/Hibernate" --> PostgreSQL
