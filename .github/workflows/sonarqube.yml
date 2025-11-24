@@ -97,45 +97,32 @@ jobs:
           fi
 
 
-      # Verify Node.js is accessible and prepare PATH
-      - name: Verify Node.js Installation
-        id: node-setup
-        run: |
-          echo "Node.js version:"
-          node --version
-          echo "npm version:"
-          npm --version
-          echo "Node.js location:"
-          which node
-          NODE_DIR=$(dirname $(which node))
-          echo "NODE_BIN_DIR=$NODE_DIR" >> $GITHUB_OUTPUT
-          echo "Node.js bin directory: $NODE_DIR"
-
+      # Install SonarScanner
+      - name: Install SonarScanner
+        run: npm install -g sonarqube-scanner
 
       # Run SonarCloud analysis
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v2.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
-          PATH: ${{ env.PATH }}:${{ steps.node-setup.outputs.NODE_BIN_DIR }}
-        with:
-          args: >-
-            -Dsonar.organization=sanoopgr8
-            -Dsonar.projectKey=sanoopgr8_GenericWebPortal
-            -Dsonar.projectName=GenericWebPortal
-            -Dsonar.projectVersion=1.0
-            -Dsonar.sources=web-portal/backend/src/main/java,web-portal/frontend/src
-            -Dsonar.tests=web-portal/backend/src/test/java
-            -Dsonar.java.source=17
-            -Dsonar.java.binaries=web-portal/backend/target/classes
-            -Dsonar.java.libraries=web-portal/backend/target/**/*.jar
-            -Dsonar.javascript.lcov.reportPaths=web-portal/frontend/coverage/lcov.info
-            -Dsonar.exclusions=**/node_modules/**,**/target/**,**/*.test.js,**/*.test.jsx,**/dist/**,**/build/**
-            -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/test/**,**/tests/**
-            -Dsonar.sourceEncoding=UTF-8
-            -Dsonar.scm.provider=git
+        run: |
+          sonar-scanner \
+            -Dsonar.organization=sanoopgr8 \
+            -Dsonar.projectKey=sanoopgr8_GenericWebPortal \
+            -Dsonar.projectName=GenericWebPortal \
+            -Dsonar.projectVersion=1.0 \
+            -Dsonar.sources=web-portal/backend/src/main/java,web-portal/frontend/src \
+            -Dsonar.tests=web-portal/backend/src/test/java \
+            -Dsonar.java.source=17 \
+            -Dsonar.java.binaries=web-portal/backend/target/classes \
+            -Dsonar.java.libraries=web-portal/backend/target/**/*.jar \
+            -Dsonar.javascript.lcov.reportPaths=web-portal/frontend/coverage/lcov.info \
+            -Dsonar.exclusions=**/node_modules/**,**/target/**,**/*.test.js,**/*.test.jsx,**/dist/**,**/build/** \
+            -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/test/**,**/tests/** \
+            -Dsonar.sourceEncoding=UTF-8 \
+            -Dsonar.scm.provider=git \
             -Dsonar.verbose=false
 
       # Quality Gate check (optional but recommended)
