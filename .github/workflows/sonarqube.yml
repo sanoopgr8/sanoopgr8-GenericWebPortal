@@ -119,7 +119,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
-          PATH: ${{ steps.node-setup.outputs.NODE_BIN_DIR }}:${{ env.PATH }}
+          PATH: ${{ env.PATH }}:${{ steps.node-setup.outputs.NODE_BIN_DIR }}
         with:
           args: >-
             -Dsonar.organization=sanoopgr8
