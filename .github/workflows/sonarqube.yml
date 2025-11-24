@@ -77,7 +77,7 @@ jobs:
         with:
           args: >-
             -Dsonar.projectKey=web-portal
-            -Dsonar.projectName="Web Portal"
+            -Dsonar.projectName=WebPortal
             -Dsonar.projectVersion=1.0
             -Dsonar.sources=web-portal/backend/src/main/java,web-portal/frontend/src
             -Dsonar.tests=web-portal/backend/src/test/java
