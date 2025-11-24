@@ -1,7 +1,7 @@
-# SonarQube Static Code Analysis Workflow
+# SonarCloud Static Code Analysis Workflow
 # This workflow performs static code analysis on both Java backend and JavaScript frontend
 
-name: SonarQube Analysis
+name: SonarCloud Analysis
 
 on:
   push:
@@ -67,17 +67,48 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      # Run SonarQube analysis
-      - name: SonarQube Scan
+      # Validate SonarCloud connection
+      - name: Validate SonarCloud Connection
+        run: |
+          echo "Checking SonarCloud connectivity..."
+          echo "Organization: sanoopgr8"
+          echo "SonarCloud URL: https://sonarcloud.io"
+          
+          # Check if SONAR_TOKEN is set
+          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
+            echo "::error::SONAR_TOKEN secret is not set!"
+            echo "Please configure SONAR_TOKEN in GitHub Secrets (Settings > Secrets > Actions)"
+            echo "Get your token from: https://sonarcloud.io/account/security"
+            exit 1
+          fi
+          
+          # Test connectivity to SonarCloud
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://sonarcloud.io/api/system/status" || echo "000")
+          echo "HTTP Response Code: $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" = "000" ]; then
+            echo "::error::Cannot connect to SonarCloud at https://sonarcloud.io"
+            echo "Please check your internet connection"
+            exit 1
+          elif [ "$HTTP_CODE" = "200" ]; then
+            echo "✓ Successfully connected to SonarCloud"
+          else
+            echo "::warning::Unexpected HTTP code: $HTTP_CODE - continuing with scan..."
+          fi
+
+
+      # Run SonarCloud analysis
+      - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v2.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: https://sonarcloud.io
         with:
           args: >-
-            -Dsonar.projectKey=web-portal
-            -Dsonar.projectName=WebPortal
+            -Dsonar.organization=sanoopgr8
+            -Dsonar.projectKey=sanoopgr8_GenericWebPortal
+            -Dsonar.projectName=GenericWebPortal
             -Dsonar.projectVersion=1.0
             -Dsonar.sources=web-portal/backend/src/main/java,web-portal/frontend/src
             -Dsonar.tests=web-portal/backend/src/test/java
@@ -92,19 +123,19 @@ jobs:
             -Dsonar.verbose=false
 
       # Quality Gate check (optional but recommended)
-      - name: SonarQube Quality Gate check
-        id: sonarqube-quality-gate-check
+      - name: SonarCloud Quality Gate check
+        id: sonarcloud-quality-gate-check
         uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: https://sonarcloud.io
         continue-on-error: true
 
       # Display Quality Gate status
       - name: Display Quality Gate Status
         run: |
-          echo "SonarQube Quality Gate status: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
-          if [ "${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}" = "FAILED" ]; then
-            echo "::warning::Quality Gate failed. Please check SonarQube for details."
+          echo "SonarCloud Quality Gate status: ${{ steps.sonarcloud-quality-gate-check.outputs.quality-gate-status }}"
+          if [ "${{ steps.sonarcloud-quality-gate-check.outputs.quality-gate-status }}" = "FAILED" ]; then
+            echo "::warning::Quality Gate failed. Please check SonarCloud for details."
           fi
