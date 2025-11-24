@@ -97,6 +97,20 @@ jobs:
           fi
 
 
+      # Verify Node.js is accessible and get its path
+      - name: Verify Node.js Installation
+        id: node-setup
+        run: |
+          echo "Node.js version:"
+          node --version
+          echo "npm version:"
+          npm --version
+          echo "Node.js path:"
+          NODE_PATH=$(which node)
+          echo "NODE_EXECUTABLE=$NODE_PATH" >> $GITHUB_OUTPUT
+          echo "Node.js executable: $NODE_PATH"
+
+
       # Run SonarCloud analysis
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v2.0.2
@@ -120,6 +134,7 @@ jobs:
             -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/test/**,**/tests/**
             -Dsonar.sourceEncoding=UTF-8
             -Dsonar.scm.provider=git
+            -Dsonar.nodejs.executable=${{ steps.node-setup.outputs.NODE_EXECUTABLE }}
             -Dsonar.verbose=false
 
       # Quality Gate check (optional but recommended)
