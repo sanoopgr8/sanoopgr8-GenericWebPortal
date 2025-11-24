@@ -52,10 +52,15 @@ jobs:
         working-directory: web-portal/frontend
         run: npm ci
 
+      # Run frontend tests
+      - name: Run frontend tests
+        working-directory: web-portal/frontend
+        run: npm test
+
       # Build backend (required for accurate analysis)
       - name: Build backend with Maven
         working-directory: web-portal/backend
-        run: mvn clean verify -DskipTests
+        run: mvn clean verify
         env:
           MAVEN_OPTS: -Xmx3072m
 
@@ -114,11 +119,12 @@ jobs:
             -Dsonar.projectName=GenericWebPortal \
             -Dsonar.projectVersion=1.0 \
             -Dsonar.sources=web-portal/backend/src/main/java,web-portal/frontend/src \
-            -Dsonar.tests=web-portal/backend/src/test/java \
+            -Dsonar.tests=web-portal/backend/src/test/java,web-portal/frontend/src \
             -Dsonar.java.source=17 \
             -Dsonar.java.binaries=web-portal/backend/target/classes \
             -Dsonar.java.libraries=web-portal/backend/target/**/*.jar \
             -Dsonar.javascript.lcov.reportPaths=web-portal/frontend/coverage/lcov.info \
+            -Dsonar.coverage.jacoco.xmlReportPaths=web-portal/backend/target/site/jacoco/jacoco.xml \
             -Dsonar.exclusions=**/node_modules/**,**/target/**,**/*.test.js,**/*.test.jsx,**/dist/**,**/build/** \
             -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,**/test/**,**/tests/** \
             -Dsonar.sourceEncoding=UTF-8 \

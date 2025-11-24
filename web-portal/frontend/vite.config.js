@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import fs from 'fs'
+
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -14,6 +14,17 @@ export default defineConfig({
       protocol: 'ws',
       host: 'localhost',
       clientPort: 443
+    }
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+    css: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'lcov'],
+      reportsDirectory: './coverage'
     }
   }
 })

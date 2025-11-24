@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useState } from 'react';
 import logo from './assets/logo.png';
 
@@ -61,5 +62,9 @@ function Login({ onLogin }) {
         </div>
     );
 }
+
+Login.propTypes = {
+    onLogin: PropTypes.func.isRequired
+};
 
 export default Login;

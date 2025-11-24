@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './App.css'
@@ -212,6 +213,10 @@ function Settings({ user }) {
             </main>
         </div>
     )
+}
+
+Settings.propTypes = {
+    user: PropTypes.string
 }
 
 export default Settings

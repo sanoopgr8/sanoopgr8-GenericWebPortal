@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom'
 import './App.css'
@@ -89,6 +90,11 @@ function Home({ user, setUser }) {
       </main>
     </div>
   )
+}
+
+Home.propTypes = {
+  user: PropTypes.string,
+  setUser: PropTypes.func.isRequired
 }
 
 function SignupPage() {
