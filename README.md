@@ -9,6 +9,7 @@ A modern web application with React frontend and Spring Boot backend, featuring 
 - Node.js 18+
 - PostgreSQL 12+
 - Maven 3.6+
+- Nginx (for production deployment)
 
 ### Backend Setup
 ```bash
@@ -39,6 +40,25 @@ web-portal\setup.bat
 3. Update credentials in `web-portal/backend/src/main/resources/application.properties` if you changed the default password
 4. Liquibase will automatically create tables on first run
 
+### Nginx Setup (Optional - Production)
+
+For production deployment with SSL/TLS:
+
+```bash
+# Copy nginx.conf to your nginx configuration directory
+sudo cp web-portal/nginx.conf /etc/nginx/sites-available/webportal
+sudo ln -s /etc/nginx/sites-available/webportal /etc/nginx/sites-enabled/
+
+# Update SSL certificate paths in the config file
+sudo nano /etc/nginx/sites-available/webportal
+
+# Test and reload nginx
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+**Note**: Update the SSL certificate paths and server name in `nginx.conf` before deployment.
+
 ## 📚 Documentation
 
 - **[Architecture](web-portal/docs/architecture/architecture.md)** - System architecture and design
@@ -61,6 +81,10 @@ web-portal\setup.bat
 - **Build Tool**: Vite 7
 - **Routing**: React Router 7
 - **Styling**: Vanilla CSS
+
+### Infrastructure
+- **Nginx** - Reverse proxy and SSL termination
+- **PostgreSQL** - Persistent data storage
 
 ## ✨ Features
 
@@ -170,4 +194,6 @@ This project is licensed under the MIT License.
 - [Signup Implementation](web-portal/docs/features/SIGNUP_IMPLEMENTATION.md)
 - [Architecture Diagram](web-portal/docs/architecture/architecture.md)
 - [SonarQube Integration](web-portal/docs/SONARQUBE.md)
+- [Nginx Configuration](web-portal/docs/setup/HARDCODED_VALUES.md#nginx-configuration)
+
 
