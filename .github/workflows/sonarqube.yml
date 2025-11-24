@@ -75,9 +75,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
-          args: >
+          args: >-
             -Dsonar.projectKey=web-portal
-            -Dsonar.projectName=Web Portal
+            -Dsonar.projectName="Web Portal"
             -Dsonar.projectVersion=1.0
             -Dsonar.sources=web-portal/backend/src/main/java,web-portal/frontend/src
             -Dsonar.tests=web-portal/backend/src/test/java
