@@ -1,1 +1,4 @@
 /myworkspace.code-workspace
+# Claude Code files
+.claude/
+CLAUDE.md
