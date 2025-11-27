@@ -20,7 +20,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
     
-    @Column(nullable = false)
+    @Column(nullable = true)  // Nullable for SSO users
     private String password;
     
     private boolean verified = false;
@@ -28,6 +28,12 @@ public class User {
     private String verificationToken;
     
     private LocalDateTime tokenCreatedAt;
+    
+    @Column(name = "auth_provider", length = 20)
+    private String authProvider = "LOCAL";  // LOCAL or KEYCLOAK
+    
+    @Column(name = "keycloak_id", unique = true)
+    private String keycloakId;
 
     // Getters and Setters
     public Long getId() {
@@ -92,5 +98,21 @@ public class User {
 
     public void setTokenCreatedAt(LocalDateTime tokenCreatedAt) {
         this.tokenCreatedAt = tokenCreatedAt;
+    }
+    
+    public String getAuthProvider() {
+        return authProvider;
+    }
+    
+    public void setAuthProvider(String authProvider) {
+        this.authProvider = authProvider;
+    }
+    
+    public String getKeycloakId() {
+        return keycloakId;
+    }
+    
+    public void setKeycloakId(String keycloakId) {
+        this.keycloakId = keycloakId;
     }
 }

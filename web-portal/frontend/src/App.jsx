@@ -2,6 +2,7 @@ import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom'
 import './App.css'
+import { KeycloakProvider, useKeycloak } from './KeycloakProvider'
 import Login from './Login'
 import Signup from './Signup'
 import Verify from './Verify'
@@ -10,6 +11,15 @@ import Settings from './Settings'
 function Home({ user, setUser }) {
   const [message, setMessage] = useState('')
   const navigate = useNavigate()
+  const { authenticated, user: ssoUser, logout: ssoLogout } = useKeycloak()
+
+  // Check for SSO authentication
+  useEffect(() => {
+    if (authenticated && ssoUser && !user) {
+      // User is authenticated via SSO
+      setUser(ssoUser.fullName)
+    }
+  }, [authenticated, ssoUser, user, setUser])
 
   useEffect(() => {
     if (user) {
@@ -19,6 +29,15 @@ function Home({ user, setUser }) {
         .catch(error => console.error('Error fetching data:', error))
     }
   }, [user])
+
+  const handleLogout = () => {
+    if (authenticated) {
+      // SSO logout
+      ssoLogout()
+    }
+    // Local logout
+    setUser(null)
+  }
 
   if (!user) {
     return (
@@ -67,7 +86,7 @@ function Home({ user, setUser }) {
           <button
             className="nav-item logout"
             title="Logout"
-            onClick={() => setUser(null)}
+            onClick={handleLogout}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -83,6 +102,7 @@ function Home({ user, setUser }) {
           <h1>Web Portal</h1>
           <div className="card">
             <h2>Welcome, {user}!</h2>
+            {authenticated && <p style={{ color: '#667eea', fontSize: '14px' }}>🔐 Authenticated via SSO</p>}
             <p>Backend says:</p>
             <h2 className="message">{message || 'Loading...'}</h2>
           </div>
@@ -110,18 +130,26 @@ function SignupPage() {
   )
 }
 
-function App() {
+function AppContent() {
   const [user, setUser] = useState(null)
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home user={user} setUser={setUser} />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/verify" element={<Verify />} />
-        <Route path="/settings" element={<Settings user={user} />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<Home user={user} setUser={setUser} />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/verify" element={<Verify />} />
+      <Route path="/settings" element={<Settings user={user} />} />
+    </Routes>
+  )
+}
+
+function App() {
+  return (
+    <KeycloakProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </KeycloakProvider>
   )
 }
 

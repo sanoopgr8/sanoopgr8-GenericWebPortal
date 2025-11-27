@@ -10,6 +10,13 @@ export default defineConfig({
     port: 5174,
     strictPort: false,
     cors: false,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false
+      }
+    },
     hmr: {
       protocol: 'ws',
       host: 'localhost',

@@ -19,3 +19,25 @@ secrets.env
 build/
 dist/
 target/
+
+# Build and runtime logs
+*-output.txt
+build_log.txt
+compile-output.txt
+backend-output.txt
+
+# Local development scripts (contain passwords)
+*.local.ps1
+*.local.bat
+run-local.ps1
+run-local.bat
+
+# Backend build artifacts
+backend/target/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Keycloak data
+keycloak-data/

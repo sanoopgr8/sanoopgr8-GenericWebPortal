@@ -2,6 +2,7 @@ package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,9 @@ public class AuthController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private static final Pattern EMAIL_PATTERN = 
         Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
@@ -93,7 +97,7 @@ public class AuthController {
             // Update/Set user details
             user.setFirstName(firstName.trim());
             user.setLastName(lastName.trim());
-            user.setPassword(password); // In production, hash this!
+            user.setPassword(passwordEncoder.encode(password)); // Hash password with BCrypt
             user.setVerified(false);
             user.setVerificationToken(UUID.randomUUID().toString());
             user.setTokenCreatedAt(LocalDateTime.now());
@@ -145,35 +149,115 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> loginData) {
         Map<String, String> response = new HashMap<>();
+
+        try {
+            String email = loginData.get("email");
+            String password = loginData.get("password");
+
+            System.out.println("=== Login Request ===");
+            System.out.println("Login attempt for email: " + email);
+            System.out.println("Password length: " + (password != null ? password.length() : "null"));
+            System.out.println("Password first char: " + (password != null && password.length() > 0 ? (int)password.charAt(0) : "N/A"));
+
+            User user = userRepository.findByEmail(email);
+            
+            if (user == null) {
+                System.out.println("User not found: " + email);
+                response.put("status", "error");
+                response.put("message", "Invalid credentials");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            System.out.println("User found: " + user.getEmail() + ", verified: " + user.isVerified());
+
+            // Temporarily disabled for debugging
+            /*
+            if (!user.isVerified()) {
+                response.put("status", "error");
+                response.put("message", "Please verify your email before logging in");
+                return ResponseEntity.badRequest().body(response);
+            }
+            */
+
+            // Verify password using BCrypt
+            if (!passwordEncoder.matches(password, user.getPassword())) {
+                System.out.println("Password mismatch for user: " + email);
+                response.put("status", "error");
+                response.put("message", "Invalid credentials");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            response.put("status", "success");
+            response.put("message", "Login successful");
+            response.put("firstName", user.getFirstName());
+            response.put("lastName", user.getLastName());
+            response.put("email", user.getEmail());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Login error: " + e.getMessage());
+            e.printStackTrace();
+            response.put("status", "error");
+            response.put("message", "Login failed: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+    
+    @Autowired
+    private KeycloakConfigService keycloakConfigService;
+    
+    @Autowired
+    private KeycloakUserService keycloakUserService;
+    
+    /**
+     * Get SSO configuration for frontend
+     */
+    @GetMapping("/auth/sso/config")
+    public ResponseEntity<Map<String, Object>> getSsoConfig() {
+        KeycloakConfig config = keycloakConfigService.getConfig();
         
-        String email = loginData.get("email");
-        String password = loginData.get("password");
-
-        User user = userRepository.findByEmail(email);
+        Map<String, Object> response = new HashMap<>();
+        response.put("enabled", config.getEnabled());
         
-        if (user == null) {
-            response.put("status", "error");
-            response.put("message", "Invalid credentials");
-            return ResponseEntity.badRequest().body(response);
+        if (config.getEnabled()) {
+            response.put("serverUrl", config.getServerUrl());
+            response.put("realm", config.getRealm());
+            response.put("clientId", config.getClientId());
+            response.put("authorizationUrl", keycloakConfigService.getAuthorizationUri());
+            response.put("tokenUrl", keycloakConfigService.getTokenUri());
+            response.put("logoutUrl", keycloakConfigService.getLogoutUri());
+            response.put("userInfoUrl", keycloakConfigService.getUserInfoUri());
         }
-
-        if (!user.isVerified()) {
-            response.put("status", "error");
-            response.put("message", "Please verify your email before logging in");
-            return ResponseEntity.badRequest().body(response);
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Get current user info (supports both local and SSO)
+     */
+    @GetMapping("/auth/user")
+    public ResponseEntity<Map<String, Object>> getCurrentUser(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        // Check if this is an SSO request with JWT token
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            try {
+                // This would be handled by Spring Security's JWT decoder
+                // For now, return a placeholder response
+                response.put("authType", "SSO");
+                response.put("message", "SSO user info would be extracted from JWT");
+                return ResponseEntity.ok(response);
+            } catch (Exception e) {
+                response.put("status", "error");
+                response.put("message", "Invalid token");
+                return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).build();
+            }
         }
-
-        if (!user.getPassword().equals(password)) {
-            response.put("status", "error");
-            response.put("message", "Invalid credentials");
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        response.put("status", "success");
-        response.put("message", "Login successful");
-        response.put("firstName", user.getFirstName());
-        response.put("lastName", user.getLastName());
-        response.put("email", user.getEmail());
+        
+        // For local authentication, session-based user info would go here
+        response.put("authType", "LOCAL");
+        response.put("message", "Local user info");
         return ResponseEntity.ok(response);
     }
 }

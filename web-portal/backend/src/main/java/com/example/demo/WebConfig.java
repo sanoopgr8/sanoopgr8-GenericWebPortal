@@ -15,9 +15,10 @@ public class WebConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 // Allow all origins since nginx reverse proxy handles security
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+                        .allowedOriginPatterns("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }

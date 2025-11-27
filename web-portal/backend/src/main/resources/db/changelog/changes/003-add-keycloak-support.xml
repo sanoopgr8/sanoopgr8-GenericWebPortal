@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Create keycloak_configs table -->
+    <changeSet id="003-1-create-keycloak-configs-table" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="keycloak_configs"/>
+            </not>
+        </preConditions>
+        <createTable tableName="keycloak_configs">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="server_url" type="VARCHAR(500)"/>
+            <column name="realm" type="VARCHAR(100)"/>
+            <column name="client_id" type="VARCHAR(100)"/>
+            <column name="client_secret" type="VARCHAR(500)"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Add auth_provider column to users table -->
+    <changeSet id="003-2-add-auth-provider-to-users" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users" columnName="auth_provider"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="users">
+            <column name="auth_provider" type="VARCHAR(20)" defaultValue="LOCAL">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- Add keycloak_id column to users table -->
+    <changeSet id="003-3-add-keycloak-id-to-users" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users" columnName="keycloak_id"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="users">
+            <column name="keycloak_id" type="VARCHAR(255)">
+                <constraints nullable="true" unique="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <!-- Make password column nullable for SSO users -->
+    <changeSet id="003-4-make-password-nullable" author="system">
+        <dropNotNullConstraint tableName="users" columnName="password" columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <!-- Add index on keycloak_id for faster lookups -->
+    <changeSet id="003-5-add-index-on-keycloak-id" author="system">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="idx_users_keycloak_id"/>
+            </not>
+        </preConditions>
+        <createIndex indexName="idx_users_keycloak_id" tableName="users">
+            <column name="keycloak_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Insert default Keycloak configuration -->
+    <changeSet id="003-6-insert-default-keycloak-config" author="system">
+        <insert tableName="keycloak_configs">
+            <column name="enabled" valueBoolean="true"/>
+            <column name="server_url" value="http://localhost:8180"/>
+            <column name="realm" value="webportal"/>
+            <column name="client_id" value="webportal-client"/>
+            <column name="client_secret" value=""/>
+            <column name="updated_at" valueDate="CURRENT_TIMESTAMP"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
